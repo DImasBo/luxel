@@ -6,7 +6,7 @@ import config
 import csv
 from selenium.common.exceptions import StaleElementReferenceException
 from multiprocessing import Pool
-
+# from utils import CSV_1c
 FORMAT_FOLDER_RESULT = "%Y-%m-%d"
 
 class Luxel:
@@ -21,7 +21,7 @@ class Luxel:
 		self.count_pool = kwargs.get('count_pool', config.LUXEL_COUNT_POOL)
 		self.login = kwargs.get('count_pool', config.LUXEL_LOGIN)
 		self.passwd = kwargs.get('count_pool', config.LUXEL_PASSWORD)
-	
+		# self.csv_1c = CSV_1c
 	def parser_short_prdouct(self):		
 		'''
 		збір данних про товари з коротким описом
@@ -100,3 +100,4 @@ class Luxel:
 
 		with Pool(self.flows) as p:
 			p.map(self.map_details_product, data_short)
+    
