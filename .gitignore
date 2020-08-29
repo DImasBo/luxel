@@ -1,0 +1,7 @@
+config.py
+logs/*
+result/*
+luxel/result/*
+__pycache__/
+geckodriver.log
+*.zip
