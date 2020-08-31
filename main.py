@@ -12,7 +12,7 @@ import argparse
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser( add_help=False)
 	parser.add_argument("site", help="which version of the parser to run?")
-	parser.add_argument("short", help="short product")
+	parser.add_argument("type", help="1 = short product parsing, 2 = details product parsing")
 	
 	args = parser.parse_args()
 	
@@ -20,9 +20,9 @@ if __name__ == '__main__':
 	
 	if args.site == 'luxel':
 		luxel = Luxel()
-		if args.short:
+		if args.type == "1":
 			print("Start short product parsing Luxel")
 			luxel.parser_short_prdouct()
-		else:
+		elif args.type == "2":
 			print("Start details product parsing Luxel")
 			luxel.parser_details_prdouct()

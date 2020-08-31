@@ -13,8 +13,12 @@ class Luxel:
 	
 
 	def __init__(self, **kwargs):
-		self.result_dir = "luxel/result/"+datetime.today().strftime(FORMAT_FOLDER_RESULT)
+		self.result_dir = config.LIXEL_DIRECTORY_RESULT+"today"
+		self.result_dir = config.LIXEL_DIRECTORY_RESULT+"old_data"
+		print(os.path.isdir(self.result_dir))
+		print(self.result_dir)
 		if not os.path.isdir(self.result_dir):
+			print('tesste')
 			os.mkdir(self.result_dir)
 		self.file_name = self.result_dir+'/result_short.csv'
 		self.flows = kwargs.get('flows', config.LUXEL_FLOWS)
