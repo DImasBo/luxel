@@ -19,6 +19,7 @@ class BaseParser:
 
 	def get(self,url):
 		r = requests.get(url, headers=self.headers)
+		print(r, self.headers, url)
 		if r.status_code == 200:
 			return r
 		elif r.status_code==403:

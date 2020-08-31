@@ -8,17 +8,33 @@ from selenium.common.exceptions import StaleElementReferenceException
 from multiprocessing import Pool
 
 FORMAT_FOLDER_RESULT = "%Y-%m-%d"
+luxel_result_file = ""
+
+def map_details_product( data):
+	global luxel_result_file
+			
+	with open(luxel_result_file,'a') as f:
+		writer = csv.writer(f,delimiter=config.DELLIMITED)
+		if data.get('url'):
+			offer = ClientLuxel().parser_product(data['url'])	
+			writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT'],
+				offer.price,
+				"^".join([p[0]+"="+p[1] for p in offer.params]),
+				" ".join(offer.pictures),
+				])
+			offer.info()
+		else:
+			writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT']])
+			print(data)
 
 class Luxel:
 	
 
 	def __init__(self, **kwargs):
-		self.result_dir = config.LIXEL_DIRECTORY_RESULT+"today"
-		self.result_dir = config.LIXEL_DIRECTORY_RESULT+"old_data"
-		print(os.path.isdir(self.result_dir))
-		print(self.result_dir)
+		self.result_dir = config.LIXEL_DIRECTORY_RESULT+datetime.today().strftime(FORMAT_FOLDER_RESULT)
+		# print(os.path.isdir(self.result_dir))
+		# print(self.result_dir)
 		if not os.path.isdir(self.result_dir):
-			print('tesste')
 			os.mkdir(self.result_dir)
 		self.file_name = self.result_dir+'/result_short.csv'
 		self.flows = kwargs.get('flows', config.LUXEL_FLOWS)
@@ -33,7 +49,7 @@ class Luxel:
 		aLuxel = BrowserLuxel()
 
 		aLuxel.login(self.login, self.passwd)
-
+		# print(login)
 		# parser коротку информацию о товаре
 		i = 0
 		flag_dom = True
@@ -43,6 +59,7 @@ class Luxel:
 				with open(self.file_name,"w") as f:
 					writer = csv.writer(f,delimiter=config.DELLIMITED)
 					writer.writerow(['url','title','sku','Сategory Luxel','status','Price without VAT','Price with VAT'])
+				print("teste")
 				categories = aLuxel.parser_get_categories()
 				for category in categories:
 					data_category = aLuxel.parser_category(category)
@@ -72,35 +89,40 @@ class Luxel:
 		aLuxel.drive.quit()
 
 	def map_details_product(self, data):
-		
-		with open(self.luxel_result_file,'a') as f:
+		global luxel_result_file
+		with open(luxel_result_file,'a') as f:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
 			if data.get('url'):
 				offer = ClientLuxel().parser_product(data['url'])	
-				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price without VAT'],data['Price with VAT'],
+				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT'],
 					offer.price,
 					"^".join([p[0]+"="+p[1] for p in offer.params]),
 					" ".join(offer.pictures),
 					])
+				offer.info()
 			else:
-				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price without VAT'],data['Price with VAT']])
-
+				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT']])
+				print(data)
 
 	def parser_details_prdouct(self):
 		'''
 		збір данних про товари з детальним описом описом
 		'''
 
-		self.parser_short_prdouct()
+		# self.parser_short_prdouct()
 		data_short = []
 		with open(self.file_name) as f:
 			data_short = [item for item  in csv.DictReader(f,delimiter=config.DELLIMITED)]
+		global luxel_result_file
+		luxel_result_file = self.file_name.replace('result_short','result_detail')
 
-		self.luxel_result_file = self.file_name.replace('result_short','result_detail')
-
-		with open(self.luxel_result_file,'w') as f:
+		with open(luxel_result_file,'w') as f:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
-			writer.writerow(['url','title','sku','Сategory Luxel','status','Price without VAT','Price with VAT','price','params','pictures'])
+			writer.writerow(['url','title','sku','сategory','status','Price with VAT','price','params','pictures'])
 
-		with Pool(self.flows) as p:
-			p.map(self.map_details_product, data_short)
+		for i, data in enumerate( data_short):
+			print(i)
+			self.map_details_product(data)
+			print("==========+++++++++=============== ",i,data,"==========+++++++++======= ")
+		# with Pool(self.flows) as p:
+			# p.map(map_details_product, data_short)

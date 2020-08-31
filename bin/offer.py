@@ -18,7 +18,7 @@ class Offer:
 		self.pictures = kwargs.get('pictures',[])
 		self.vendor = kwargs.get('vendor')
 
-		self.info()
+		# self.info()
 
 	def info(self):
 		print("========= %s =======" % (self.title,))
