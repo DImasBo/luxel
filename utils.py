@@ -9,9 +9,13 @@ def get_user_agent(url, headers={}):
 
 	for user_agent in list_user_agent:
 		headers['User-Agent'] = user_agent
-		r = requests.get(url,headers=headers)
-		if r.status_code==200:
-			return user_agent
+		try:
+			r = requests.get(url,headers=headers)
+		except Exception as e:
+			print("ERROR request: {}".format(e,))
+		else:
+			if r.status_code==200:
+				return user_agent
 
 def formater_csv_write(text):
 	if text:

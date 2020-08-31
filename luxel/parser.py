@@ -10,7 +10,15 @@ import config
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG, filename='logs/parser.log', filemode='w', format='%(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
+
+# c_handler = logging.StreamHandler()
+# c_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+
+# logger.addHandler(c_handler)
+
+# logger.debug("teste")
+# logger.debug("info")
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -113,7 +121,9 @@ class BrowserLuxel():
 					off.status = get_status( tds[3].getText())
 					# chech exits link to product
 					off.url = tds[1].select_one("a").get('data-href').replace("\n","") if tds[1].select_one("a") else None
+					off.info()
 					offers.append(off)
+
 		return {
 			'title_category':category.text,
 			'offers':offers

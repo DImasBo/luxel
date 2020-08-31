@@ -13,7 +13,7 @@ class Luxel:
 	
 
 	def __init__(self, **kwargs):
-		self.result_dir = "luxel/result/"+datetime.today().strftime(FORMAT_FOLDER_RESULT)
+		self.result_dir = config.LUXEL_DIGTIONARY_RESULT+datetime.today().strftime(FORMAT_FOLDER_RESULT)
 		if not os.path.isdir(self.result_dir):
 			os.mkdir(self.result_dir)
 		self.file_name = self.result_dir+'/result_short.csv'
@@ -38,7 +38,7 @@ class Luxel:
 			try:
 				with open(self.file_name,"w") as f:
 					writer = csv.writer(f,delimiter=config.DELLIMITED)
-					writer.writerow(['url','title','sku','Сategory Luxel','status','Price without VAT','Price with VAT'])
+					writer.writerow(['url','title','sku','сategory','status','Price with VAT'])
 				categories = aLuxel.parser_get_categories()
 				for category in categories:
 					data_category = aLuxel.parser_category(category)
@@ -52,7 +52,6 @@ class Luxel:
 									formater_csv_write(offer.sku).replace(" ",""),
 									formater_csv_write(data_category['title_category']),
 									formater_csv_write(offer.status),
-									formater_csv_write(offer.retai_price),
 									formater_csv_write(offer.retai_price_dns),
 									] for offer in data_category['offers']
 								]	
@@ -73,13 +72,13 @@ class Luxel:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
 			if data.get('url'):
 				offer = ClientLuxel().parser_product(data['url'])	
-				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price without VAT'],data['Price with VAT'],
+				writer.writerow([data['url'],data['title'],data['sku'],data['сategory'],data['status'],data['Price with VAT'],
 					offer.price,
 					"^".join([p[0]+"="+p[1] for p in offer.params]),
 					" ".join(offer.pictures),
 					])
 			else:
-				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price without VAT'],data['Price with VAT']])
+				writer.writerow([data['url'],data['title'],data['sku'],data['сategory'],data['status'],data['Price with VAT']])
 
 
 	def parser_details_prdouct(self):
