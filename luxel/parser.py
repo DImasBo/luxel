@@ -56,8 +56,11 @@ class ClientLuxel(BaseParser):
 		return offer
 
 class BrowserLuxel():
-
+	"""
+	Client selenium browser Firefox site luxel 
+	"""
 	def __init__(self,**kwargs):
+		""" image not download, browser not show """
 		profile = webdriver.FirefoxProfile()
 		profile.set_preference("permissions.default.image", 2)
 		
@@ -72,25 +75,35 @@ class BrowserLuxel():
 		self.drive.find_element(By.NAME,"email").send_keys(email)
 		self.drive.find_element(By.NAME,"password").send_keys(password + Keys.ENTER)
 
-	def parser_get_categories(self):
-		main_link='https://luxel.ua/index.php?route=optorder/index&pt=aa3b3d90-29e4-11e0-be83-00112f58b61d'
-		self.drive.get(main_link)
-		# open all categories
-		buttons = self.drive.find_elements(By.CSS_SELECTOR,".ttt .catalog-data strong[onclick]")
+	def is_login(self):
+		self.drive.get(config.LUXEL_LOGIN_LINK)
+		if self.drive.current_url == config.LUXEL_LOGIN_IS_LOGIN:
+			return True
+		return False
 
-		for button in buttons:
-			button.click()
-		categories = self.drive.find_elements(By.CSS_SELECTOR, ".ttt .catalog-data ul a")
-		return categories
+	def parser_get_categories(self):
+		""" 
+		get list all categories with site luxel
+		"""
+		self.drive.get('https://luxel.ua/index.php?route=optorder/index&pt=aa3b3d90-29e4-11e0-be83-00112f58b61d')
+		# open all subcategories
+		for subcategory in self.drive.find_elements(By.CSS_SELECTOR,".ttt .catalog-data strong[onclick]"):
+			subcategory.click()
+		return self.drive.find_elements(By.CSS_SELECTOR, ".ttt .catalog-data ul a")
 
 	def parser_category(self,category):
+		"""
+		get list data products with table category
+		"""
 		category.click()
 		# wait dowload table 
 		offers = []
 		try:
-			WebDriverWait(self.drive, config.LUXEL_WAIT).until( EC.presence_of_element_located((By.CSS_SELECTOR, "#cat_data table")))
+			WebDriverWait(self.drive, config.LUXEL_WAIT).until( 
+				EC.presence_of_element_located((By.CSS_SELECTOR, "#cat_data table"))
+				)
 		except TimeoutException:
-			logging.error("TimeoutException not table in "+category.text)
+			logging.error("not table in "+category.text)
 		else:
 			# parser table
 			self.drive.implicitly_wait(3)
@@ -114,21 +127,8 @@ class BrowserLuxel():
 					# chech exits link to product
 					off.url = tds[1].select_one("a").get('data-href').replace("\n","") if tds[1].select_one("a") else None
 					offers.append(off)
-		return {
-			'title_category':category.text,
-			'offers':offers
+		finally:
+			return {
+				'title_category':category.text,
+				'offers':offers
 			}
-
-# def test_parser_product():
-# 	url  = 'https://luxel.ua/svetodiodnoe--led--osveshhenie/led-ulichnie-svetilniki/ulichnij-svetilnik-lxsl-100c'
-# 	luxel = LuxelParser()
-# 	product = luxel.parser_product(url)
-# 	print(product.title)
-# test_parser_product()
-
-# def test_adapter():
-# 	a = AdapterLuxel()
-# 	a.login(config.LUXEL_LOGIN,config.LUXEL_PASSWORD)	
-# 	categories = a.parser_get_categories()
-# 	a.parser_category(categories[0])
-# test_adapter()

@@ -1,4 +1,5 @@
 from .parser import BrowserLuxel, ClientLuxel
+from config import logger_root
 from datetime import datetime
 from utils import formater_csv_write
 import os
@@ -8,24 +9,6 @@ from selenium.common.exceptions import StaleElementReferenceException
 from multiprocessing import Pool
 
 FORMAT_FOLDER_RESULT = "%Y-%m-%d"
-luxel_result_file = ""
-
-def map_details_product( data):
-	global luxel_result_file
-			
-	with open(luxel_result_file,'a') as f:
-		writer = csv.writer(f,delimiter=config.DELLIMITED)
-		if data.get('url'):
-			offer = ClientLuxel().parser_product(data['url'])	
-			writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT'],
-				offer.price,
-				"^".join([p[0]+"="+p[1] for p in offer.params]),
-				" ".join(offer.pictures),
-				])
-			offer.info()
-		else:
-			writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT']])
-			print(data)
 
 class Luxel:
 	
@@ -47,61 +30,66 @@ class Luxel:
 		збір данних про товари з коротким описом
 		'''
 		aLuxel = BrowserLuxel()
-
-		aLuxel.login(self.login, self.passwd)
-		# print(login)
 		# parser коротку информацию о товаре
 		i = 0
 		flag_dom = True
+		aLuxel.login(self.login, self.passwd)
+		logger_root.info("open browser and login " + self.login)
 
-		while self.count_pool > i and flag_dom:
-			try:
-				with open(self.file_name,"w") as f:
-					writer = csv.writer(f,delimiter=config.DELLIMITED)
-					writer.writerow(['url','title','sku','Сategory Luxel','status','Price without VAT','Price with VAT'])
-				print("teste")
-				categories = aLuxel.parser_get_categories()
-				for category in categories:
-					data_category = aLuxel.parser_category(category)
-					print("%s products count %d" % ( data_category['title_category'], len(data_category['offers'])) )
-
-					with open(self.file_name,"a") as f:
+		if aLuxel.is_login:
+			order_log = ""
+			order_count = 0
+			while self.count_pool > i and flag_dom:
+				try:
+					with open(self.file_name,"w") as f:
 						writer = csv.writer(f,delimiter=config.DELLIMITED)
-						data = [[
-									formater_csv_write(offer.url),
-									formater_csv_write(offer.title),
-									formater_csv_write(offer.sku).replace(" ",""),
-									formater_csv_write(data_category['title_category']),
-									formater_csv_write(offer.status),
-									formater_csv_write(offer.retai_price),
-									formater_csv_write(offer.retai_price_dns),
-									] for offer in data_category['offers']
-								]	
-						writer.writerows(data)
-				flag_dom = False
-			except StaleElementReferenceException:
-				print("%d: ERROR: %s" % (i, StaleElementReferenceException))
-			except Exception as e:
-				print("%d: ERROR: %s" % (i, e))
-			i += 1
-			
+						writer.writerow(['url','title','sku','category','status','price VAT'])
+					categories = aLuxel.parser_get_categories()
+					for category in categories:
+						data_category = aLuxel.parser_category(category)
+						# log order
+						order_count+=len(data_category['offers'])
+						logger_root.debug("%s products count %d" % ( data_category['title_category'], len(data_category['offers'])) )
+
+						with open(self.file_name,"a") as f:
+							writer = csv.writer(f,delimiter=config.DELLIMITED)
+							data = [[
+										formater_csv_write(offer.url),
+										formater_csv_write(offer.title),
+										formater_csv_write(offer.sku).replace(" ",""),
+										formater_csv_write(data_category['title_category']),
+										formater_csv_write(offer.status),
+										formater_csv_write(offer.retai_price),
+										formater_csv_write(offer.retai_price_dns),
+										] for offer in data_category['offers']
+									]	
+							writer.writerows(data)
+					flag_dom = False
+				
+				except Exception as e:
+					logger_root.error("%d: ERROR: %s" % (i, e))
+				finally:
+					logger_root.info(" | ".join([category.text for category in categories]))
+					logger_root.info("count products %d" % (order_count,))
+					i += 1		
 		aLuxel.drive.close()
 		aLuxel.drive.quit()
+		logger_root.info("close browser")
 
 	def map_details_product(self, data):
-		global luxel_result_file
-		with open(luxel_result_file,'a') as f:
+		
+		with open(self.luxel_result_file,'a') as f:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
 			if data.get('url'):
 				offer = ClientLuxel().parser_product(data['url'])	
-				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT'],
+				writer.writerow([data['url'],data['title'],data['sku'],data['category'],data['status'],data['price VAT'],
 					offer.price,
 					"^".join([p[0]+"="+p[1] for p in offer.params]),
 					" ".join(offer.pictures),
 					])
 				offer.info()
 			else:
-				writer.writerow([data['url'],data['title'],data['sku'],data['Сategory Luxel'],data['status'],data['Price with VAT']])
+				writer.writerow([data['url'],data['title'],data['sku'],data['category'],data['status'],data['price VAT']])
 				print(data)
 
 	def parser_details_prdouct(self):
@@ -113,16 +101,23 @@ class Luxel:
 		data_short = []
 		with open(self.file_name) as f:
 			data_short = [item for item  in csv.DictReader(f,delimiter=config.DELLIMITED)]
-		global luxel_result_file
-		luxel_result_file = self.file_name.replace('result_short','result_detail')
+		
+		self.luxel_result_file = self.file_name.replace('result_short','result_detail')
 
-		with open(luxel_result_file,'w') as f:
+		with open(self.luxel_result_file,'w') as f:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
-			writer.writerow(['url','title','sku','сategory','status','Price with VAT','price','params','pictures'])
+			writer.writerow(['url','title','sku','сategory','status','Price VAT','price','params','pictures'])
 
-		for i, data in enumerate( data_short):
-			print(i)
-			self.map_details_product(data)
-			print("==========+++++++++=============== ",i,data,"==========+++++++++======= ")
-		# with Pool(self.flows) as p:
-			# p.map(map_details_product, data_short)
+		with Pool(self.flows) as p:
+			p.map(self.map_details_product, filter( config.LUXEL_FILTER_LAMBDA, data_short))
+		# sorted
+		data_sort = []
+		with open(self.luxel_result_file,'r') as f:
+			reader = [item for item  in csv.DictReader(f,delimiter=config.DELLIMITED)]
+			data_sort = sorted(reader, key=lambda data: data['сategory'], reverse=False )
+
+		with open(self.luxel_result_file,'w') as f:
+			writer = csv.DictWriter(f,delimiter=config.DELLIMITED,fieldnames=['url','title','sku','сategory','status','Price VAT','price','params','pictures'])
+			writer.writeheader()
+			for vals in data_sort:
+				writer.writerow(vals)

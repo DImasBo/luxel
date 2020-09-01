@@ -3,8 +3,9 @@ from luxel.adapter import Luxel
 
 from datetime import datetime
 from multiprocessing import Pool
-
+import logging
 import config
+from config import logger_root
 import os	
 import csv
 import argparse
@@ -15,14 +16,13 @@ if __name__ == '__main__':
 	parser.add_argument("type", help="1 = short product parsing, 2 = details product parsing")
 	
 	args = parser.parse_args()
-	
-	print(args)
+	logger_root.info(args)
 	
 	if args.site == 'luxel':
 		luxel = Luxel()
 		if args.type == "1":
-			print("Start short product parsing Luxel")
+			logger_root.info("Start short product parsing Luxel")
 			luxel.parser_short_prdouct()
 		elif args.type == "2":
-			print("Start details product parsing Luxel")
+			logger_root.info("Start details product parsing Luxel")
 			luxel.parser_details_prdouct()
