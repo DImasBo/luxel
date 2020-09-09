@@ -39,7 +39,8 @@ class ClientLuxel(BaseParser):
 			currency=config.LUXEL_CURRENCY_ID_DEFAULT,
 			sku=s.select_one('.code_prod p').getText().replace('Артикул',"").replace(':',""),
 			description=str(s.select_one('.tab-content .tab-pane')),
-			category=config.LUXEL_CATEGORY_ID_DEFAULT,			
+			category=config.LUXEL_CATEGORY_ID_DEFAULT,
+			vendor=config.LUXEL_VENDOR
 			)
 
 		offer.pictures = [a.get("href") for a in s.select('.flexslider li a')]
@@ -62,7 +63,12 @@ class BrowserLuxel():
 	def __init__(self,**kwargs):
 		""" image not download, browser not show """
 		profile = webdriver.FirefoxProfile()
+		# optimition 
 		profile.set_preference("permissions.default.image", 2)
+		profile.set_preference("browser.sessionhistory.max_total_viewers", 0)
+		profile.set_preference("browser.cache.memory.max_entry_size", 2048)
+		profile.set_preference("network.dns.disableIPv6",False)
+		profile.set_preference("nglayout.initialpaint.delay",0)
 		
 		fireFoxOptions = webdriver.FirefoxOptions()
 		if kwargs.get('headless',config.HEADLESS_WINDOWS):
@@ -120,7 +126,8 @@ class BrowserLuxel():
 							title=tds[1].getText().replace("\n",""),
 							sku=tds[0].getText().replace("\n",""),
 							retai_price=tds[4].getText().replace("грн.","").replace("\n",""),
-							retai_price_dns=tds[5].getText().replace("грн.","").replace("\n","")
+							retai_price_dns=tds[5].getText().replace("грн.","").replace("\n",""),
+							vendor=config.LUXEL_VENDOR
 							)
 
 					off.status = get_status( tds[3].getText())

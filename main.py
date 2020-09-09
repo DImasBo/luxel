@@ -21,8 +21,28 @@ if __name__ == '__main__':
 	if args.site == 'luxel':
 		luxel = Luxel()
 		if args.type == "1":
-			logger_root.info("Start short product parsing Luxel")
-			luxel.parser_short_prdouct()
+			flag_dom = True
+			i=0
+			while config.LUXEL_COUNT_POOL > i and flag_dom:
+				try:
+					logger_root.info("Start short product parsing Luxel")
+					luxel.parser_short_prdouct()
+					flag_dom = False
+				except Exception as e:
+					logger_root.error("short product parsing Luxel ERROR %s" %(e,))
+				finally:
+					i += 1
+			logger_root.info("parser finally")
 		elif args.type == "2":
-			logger_root.info("Start details product parsing Luxel")
-			luxel.parser_details_prdouct()
+			flag_dom = True
+			i=0
+			while config.LUXEL_COUNT_POOL > i and flag_dom:
+				try:
+					logger_root.info("Start details product parsing Luxel")
+					luxel.parser_details_prdouct()
+					flag_dom = False
+				except Exception as e:
+					logger_root.error("details product parsing Luxel ERROR %s" %(e,))
+				finally:
+					i += 1
+			logger_root.info("parser finally")
