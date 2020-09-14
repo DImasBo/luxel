@@ -84,7 +84,7 @@ class Luxel:
 
 
 	def map_details_product(self, data):
-		
+		import time
 		with open(self.luxel_result_file,'a') as f:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
 			if data.get('url'):
