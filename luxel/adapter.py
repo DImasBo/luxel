@@ -32,14 +32,14 @@ class Luxel:
 		aLuxel = BrowserLuxel()
 		# parser коротку информацию о товаре
 		i = 0
-		flag_dom = True
+		flag_dom = False
 		aLuxel.login(self.login, self.passwd)
 		logger_root.info("open browser and login " + self.login)
 
 		if aLuxel.is_login:
 			order_log = ""
 			order_count = 0
-			while self.count_pool > i and flag_dom:
+			while self.count_pool > i and not flag_dom:
 				try:
 					with open(self.file_name,"w") as f:
 						writer = csv.writer(f,delimiter=config.DELLIMITED)
@@ -72,10 +72,13 @@ class Luxel:
 				finally:
 					logger_root.info(" | ".join([category.text for category in categories]))
 					logger_root.info("count products %d" % (order_count,))
-					i += 1		
+					i += 1
+					if order_count > 0:
+						flag_dom = True
 		aLuxel.drive.close()
 		aLuxel.drive.quit()
 		logger_root.info("close browser")
+
 
 	def map_details_product(self, data):
 		
