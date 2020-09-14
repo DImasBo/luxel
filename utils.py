@@ -17,3 +17,7 @@ def formater_csv_write(text):
 	if text:
 		return str(text).replace("\t"," ").replace("\n"," ").replace("  "," ")
 	return ""
+	
+def chunks(l, n):
+	for i in range(0, len(l), n):
+		yield l[i:i + n]

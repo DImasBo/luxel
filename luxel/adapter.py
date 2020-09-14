@@ -1,7 +1,7 @@
 from .parser import BrowserLuxel, ClientLuxel
 from config import logger_root
 from datetime import datetime
-from utils import formater_csv_write
+from utils import formater_csv_write, chunks
 import os
 import config
 import csv
@@ -20,11 +20,14 @@ class Luxel:
 		if not os.path.isdir(self.result_dir):
 			os.mkdir(self.result_dir)
 		self.file_name = self.result_dir+'/result_short.csv'
+		self.file_name_buk = self.result_dir+'/result_buk.txt'
 		self.flows = kwargs.get('flows', config.LUXEL_FLOWS)
 		self.count_pool = kwargs.get('count_pool', config.LUXEL_COUNT_POOL)
 		self.login = kwargs.get('count_pool', config.LUXEL_LOGIN)
 		self.passwd = kwargs.get('count_pool', config.LUXEL_PASSWORD)
-	
+		# with open(self.file_name_buk,"w") as f:
+			# pass
+
 	def parser_short_prdouct(self):		
 		'''
 		збір данних про товари з коротким описом
@@ -73,7 +76,7 @@ class Luxel:
 					logger_root.info(" | ".join([category.text for category in categories]))
 					logger_root.info("count products %d" % (order_count,))
 					i += 1
-					if order_count > 0:
+					if order_count > 0	:
 						flag_dom = True
 		aLuxel.drive.close()
 		aLuxel.drive.quit()
@@ -94,23 +97,29 @@ class Luxel:
 				offer.info()
 			else:
 				writer.writerow([data['url'],data['title'],data['sku'],data['category'],data['status'],data['vendor'],data['price VAT']])
+		# with open(self.file_name_buk,'a') as f:
+			# f.write(data['sku']+"\n")
 
 	def parser_details_prdouct(self):
 		'''
 		збір данних про товари з детальним описом описом
 		'''
+		# file_name_buk
+		
 		data_short = []
 		with open(self.file_name) as f:
 			data_short = [item for item  in csv.DictReader(f,delimiter=config.DELLIMITED)]
-		
+				
 		self.luxel_result_file = self.file_name.replace('result_short','result_detail')
 
 		with open(self.luxel_result_file,'w') as f:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
 			writer.writerow(['url','title','sku','сategory','status','vendor','Price VAT','price','params','pictures'])
 
-		with Pool(self.flows) as p:
-			p.map(self.map_details_product, filter( config.LUXEL_FILTER_LAMBDA, data_short))
+
+		for data in list(chunks(list(filter( config.LUXEL_FILTER_LAMBDA, data_short)),150)):
+			with Pool(self.flows) as p:
+				p.map(self.map_details_product, data)
 		# sorted
 		data_sort = []
 		with open(self.luxel_result_file,'r') as f:

@@ -39,6 +39,7 @@ if __name__ == '__main__':
 			while config.LUXEL_COUNT_POOL > i and flag_dom:
 				try:
 					logger_root.info("Start details product parsing Luxel")
+					
 					luxel.parser_details_prdouct()
 					flag_dom = False
 				except Exception as e:
