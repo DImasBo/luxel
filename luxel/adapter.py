@@ -97,6 +97,7 @@ class Luxel:
 				offer.info()
 			else:
 				writer.writerow([data['url'],data['title'],data['sku'],data['category'],data['status'],data['vendor'],data['price VAT']])
+		time.sleep(2)
 		# with open(self.file_name_buk,'a') as f:
 			# f.write(data['sku']+"\n")
 
