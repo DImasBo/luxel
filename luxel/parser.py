@@ -38,7 +38,7 @@ class ClientLuxel(BaseParser):
 			price=s.select_one('.price').getText().replace("₴","").replace('\n',''),
 			currency=config.LUXEL_CURRENCY_ID_DEFAULT,
 			sku=s.select_one('.code_prod p').getText().replace('Артикул',"").replace(':',""),
-			description=str(s.select('.tab-content .tab-pane p')).replace("\n","").replace("[","").replace("]","").replace(">,",">"),
+			description=str(s.select_one('.tab-content .tab-pane')).replace("\n","").replace("tab-pane",""),
 			category=config.LUXEL_CATEGORY_ID_DEFAULT,
 			vendor=config.LUXEL_VENDOR
 			)
