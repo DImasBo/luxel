@@ -62,6 +62,7 @@ class Luxel:
 										formater_csv_write(offer.sku).replace(" ",""),
 										formater_csv_write(data_category['title_category']),
 										formater_csv_write(offer.status),
+
 										formater_csv_write(offer.vendor),
 										formater_csv_write(offer.retai_price),
 										formater_csv_write(offer.retai_price_dns),
@@ -93,6 +94,7 @@ class Luxel:
 					offer.price,
 					"^".join([p[0]+"="+p[1] for p in offer.params]),
 					" ".join(offer.pictures),
+					offer.description
 					])
 				offer.info()
 			else:
@@ -115,7 +117,7 @@ class Luxel:
 
 		with open(self.luxel_result_file,'w') as f:
 			writer = csv.writer(f,delimiter=config.DELLIMITED)
-			writer.writerow(['url','title','sku','сategory','status','vendor','Price VAT','price','params','pictures'])
+			writer.writerow(['url','title','sku','сategory','status','vendor','Price VAT','price','params','pictures','description'])
 
 
 		for data in list(chunks(list(filter( config.LUXEL_FILTER_LAMBDA, data_short)),150)):
@@ -128,7 +130,7 @@ class Luxel:
 			data_sort = sorted(reader, key=lambda data: data['сategory'], reverse=False )
 
 		with open(self.luxel_result_file,'w') as f:
-			writer = csv.DictWriter(f,delimiter=config.DELLIMITED,fieldnames=['url','title','sku','сategory','status','vendor','Price VAT','price','params','pictures'])
+			writer = csv.DictWriter(f,delimiter=config.DELLIMITED,fieldnames=['url','title','sku','сategory','status','vendor','description','Price VAT','price','params','pictures'])
 			writer.writeheader()
 			for vals in data_sort:
 				writer.writerow(vals)
