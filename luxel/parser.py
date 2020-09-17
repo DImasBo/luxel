@@ -8,9 +8,7 @@ from luxel.utils import get_status
 import requests
 import config
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG, filename='logs/parser.log', filemode='w', format='%(levelname)s - %(message)s')
+# from config import logger_root
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -24,12 +22,12 @@ class ClientLuxel(BaseParser):
 
 	def parser_product(self, url):
 		r = self.get(url)
-		logging.debug(r)
-		logging.debug(url)
+		print(r)
+		print(url)
 		
 		s = BeautifulSoup(r.text,'html.parser')
 		if r.status_code==404:
-			logging.error(s.find('h2').text+" "+url)
+			print("eror status_code 404", s.find('h2').text,url)
 			return Offer()
 		
 		offer = Offer(
@@ -108,7 +106,7 @@ class BrowserLuxel():
 				EC.presence_of_element_located((By.CSS_SELECTOR, "#cat_data table"))
 				)
 		except TimeoutException:
-			logging.error("not table in "+category.text)
+			print("Error: not table in "+category.text)
 		else:
 			# parser table
 			self.drive.implicitly_wait(3)

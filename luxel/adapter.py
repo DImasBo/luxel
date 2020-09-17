@@ -1,5 +1,5 @@
 from .parser import BrowserLuxel, ClientLuxel
-from config import logger_root
+# from config import print
 from datetime import datetime
 from utils import formater_csv_write, chunks
 import os
@@ -37,7 +37,7 @@ class Luxel:
 		i = 0
 		flag_dom = False
 		aLuxel.login(self.login, self.passwd)
-		logger_root.info("open browser and login " + self.login)
+		print("open browser and login " + self.login)
 
 		if aLuxel.is_login:
 			order_log = ""
@@ -52,7 +52,7 @@ class Luxel:
 						data_category = aLuxel.parser_category(category)
 						# log order
 						order_count+=len(data_category['offers'])
-						logger_root.debug("%s products count %d" % ( data_category['title_category'], len(data_category['offers'])) )
+						print("%s products count %d" % ( data_category['title_category'], len(data_category['offers'])) )
 
 						with open(self.file_name,"a") as f:
 							writer = csv.writer(f,delimiter=config.DELLIMITED)
@@ -72,16 +72,16 @@ class Luxel:
 					flag_dom = False
 				
 				except Exception as e:
-					logger_root.error("%d: ERROR: %s" % (i, e))
+					print("%d: ERROR: %s" % (i, e))
 				finally:
-					logger_root.info(" | ".join([category.text for category in categories]))
-					logger_root.info("count products %d" % (order_count,))
+					print(" | ".join([category.text for category in categories]))
+					print("count products %d" % (order_count,))
 					i += 1
 					if order_count > 0	:
 						flag_dom = True
 		aLuxel.drive.close()
 		aLuxel.drive.quit()
-		logger_root.info("close browser")
+		print("close browser")
 
 
 	def map_details_product(self, data):
