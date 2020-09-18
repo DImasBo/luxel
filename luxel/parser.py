@@ -8,9 +8,7 @@ from luxel.utils import get_status
 import requests
 import config
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG, filename='logs/parser.log', filemode='w', format='%(levelname)s - %(message)s')
+# from config import logger_root
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -24,12 +22,12 @@ class ClientLuxel(BaseParser):
 
 	def parser_product(self, url):
 		r = self.get(url)
-		logging.debug(r)
-		logging.debug(url)
+		print(r)
+		print(url)
 		
 		s = BeautifulSoup(r.text,'html.parser')
 		if r.status_code==404:
-			logging.error(s.find('h2').text+" "+url)
+			print("eror status_code 404", s.find('h2').text,url)
 			return Offer()
 		
 		offer = Offer(
@@ -38,11 +36,10 @@ class ClientLuxel(BaseParser):
 			price=s.select_one('.price').getText().replace("₴","").replace('\n',''),
 			currency=config.LUXEL_CURRENCY_ID_DEFAULT,
 			sku=s.select_one('.code_prod p').getText().replace('Артикул',"").replace(':',""),
-			description=str(s.select_one('.tab-content .tab-pane')),
+			description=str(s.select_one('.tab-content .tab-pane')).replace("\n","").replace("tab-pane",""),
 			category=config.LUXEL_CATEGORY_ID_DEFAULT,
 			vendor=config.LUXEL_VENDOR
 			)
-
 		offer.pictures = [a.get("href") for a in s.select('.flexslider li a')]
 		if 0 == len(offer.pictures):
 			offer.pictures = [s.select_one('.large-image a').get('href'),]
@@ -74,7 +71,10 @@ class BrowserLuxel():
 		if kwargs.get('headless',config.HEADLESS_WINDOWS):
 			fireFoxOptions.set_headless()
 		
-		self.drive = webdriver.Firefox(firefox_profile=profile,firefox_options=fireFoxOptions)
+		self.drive = webdriver.Firefox(
+			executable_path=config.DECKODRIVER_PATH,
+			service_log_path=config.DECKODRIVER_LOG_PATH,
+			firefox_profile=profile,firefox_options=fireFoxOptions)
 
 	def login(self,email,password):
 		self.drive.get(config.LUXEL_LOGIN_LINK)
@@ -109,7 +109,7 @@ class BrowserLuxel():
 				EC.presence_of_element_located((By.CSS_SELECTOR, "#cat_data table"))
 				)
 		except TimeoutException:
-			logging.error("not table in "+category.text)
+			print("Error: not table in "+category.text)
 		else:
 			# parser table
 			self.drive.implicitly_wait(3)
