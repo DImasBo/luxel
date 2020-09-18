@@ -31,7 +31,7 @@ def while_poll(func):
 @while_poll
 def parsing_dashboard():
 	logger.info("Start short product parsing Luxel")
-	luxel.parser_short_prdouct()dut ку
+	luxel.parser_short_prdouct()
 
 @while_poll
 def parsing_details():
