@@ -31,7 +31,7 @@ def while_poll(func):
 @while_poll
 def parsing_dashboard():
 	logger.info("Start short product parsing Luxel")
-	luxel.parser_short_prdouct()
+	luxel.parser_short_prdouct()dut ку
 
 @while_poll
 def parsing_details():
@@ -40,7 +40,7 @@ def parsing_details():
 
 if __name__ == '__main__':
 	logger.remove()
-	logger.add(sys.stderr, level="INFO")
+	logger.add(sys.stderr, level=config.LEVEL_LOG)
 
 	parser = argparse.ArgumentParser( add_help=False)
 	parser.add_argument("site", help="which version of the parser to run?")

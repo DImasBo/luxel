@@ -27,7 +27,7 @@ class BaseParser:
 			self.set_user_agent()
 			return self.get(url)
 		logger.error("ERRORR REQUESTS!!!!")
-		logger.error(r, url,self.headers)
+		logger.error(str(r) + " " + url + " "+ str(self.headers))
 		return r
 
 	def parser_categories_link(self, url, limit=100):
