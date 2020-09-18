@@ -1,4 +1,5 @@
 import config
+from loguru import logger
 
 class Offer:
 
@@ -21,9 +22,9 @@ class Offer:
 		# self.info()
 
 	def info(self):
-		print("========= %s =======" % (self.title,))
-		print(self.url)
-		print(self.sku)
+		logger.info("========= %s =======" % (self.title,))
+		logger.debug(self.url)
+		logger.debug(self.sku)
 
 	def get_data():
 		return {

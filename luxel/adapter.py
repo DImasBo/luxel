@@ -1,5 +1,5 @@
 from .parser import BrowserLuxel, ClientLuxel
-# from config import print
+from loguru import logger
 from datetime import datetime
 from utils import formater_csv_write, chunks
 import os
@@ -15,8 +15,8 @@ class Luxel:
 
 	def __init__(self, **kwargs):
 		self.result_dir = config.LIXEL_DIRECTORY_RESULT+datetime.today().strftime(FORMAT_FOLDER_RESULT)
-		# print(os.path.isdir(self.result_dir))
-		# print(self.result_dir)
+		logger.debug(os.path.isdir(self.result_dir))
+		logger.debug(self.result_dir)
 		if not os.path.isdir(self.result_dir):
 			os.mkdir(self.result_dir)
 		self.file_name = self.result_dir+'/result_short.csv'
@@ -37,7 +37,7 @@ class Luxel:
 		i = 0
 		flag_dom = False
 		aLuxel.login(self.login, self.passwd)
-		print("open browser and login " + self.login)
+		logger.info("open browser and login " + self.login)
 
 		if aLuxel.is_login:
 			order_log = ""
@@ -52,7 +52,7 @@ class Luxel:
 						data_category = aLuxel.parser_category(category)
 						# log order
 						order_count+=len(data_category['offers'])
-						print("%s products count %d" % ( data_category['title_category'], len(data_category['offers'])) )
+						logger.debug("%s products count %d" % ( data_category['title_category'], len(data_category['offers'])) )
 
 						with open(self.file_name,"a") as f:
 							writer = csv.writer(f,delimiter=config.DELLIMITED)
@@ -72,17 +72,17 @@ class Luxel:
 					flag_dom = False
 				
 				except Exception as e:
-					print("%d: ERROR: %s" % (i, e))
+					logger.error(e)
 				finally:
-					print(" | ".join([category.text for category in categories]))
-					print("count products %d" % (order_count,))
+					logger.info(" | ".join([category.text for category in categories]))
+					logger.info("count products %d" % (order_count,))
 					i += 1
 					if order_count > 0	:
 						flag_dom = True
 		aLuxel.drive.close()
 		aLuxel.drive.quit()
-		print("close browser")
 
+		logger.info("close browser")
 
 	def map_details_product(self, data):
 		import time
@@ -100,8 +100,6 @@ class Luxel:
 			else:
 				writer.writerow([data['url'],data['title'],data['sku'],data['category'],data['status'],data['vendor'],data['price VAT']])
 		time.sleep(config.LUXEL_SLEEP)
-		# with open(self.file_name_buk,'a') as f:
-			# f.write(data['sku']+"\n")
 
 	def parser_details_prdouct(self):
 		'''

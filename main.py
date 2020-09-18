@@ -1,13 +1,14 @@
 # from luxel.parser import AdapterLuxel, LuxelParser
 from luxel.adapter import Luxel
+from loguru import logger
 
 from datetime import datetime
 from multiprocessing import Pool
-import logging
 import config
 import os	
 import csv
 import argparse
+import sys
 
 def while_poll(func):
 	""" 
@@ -21,29 +22,32 @@ def while_poll(func):
 				func()
 				flag_dom = False
 			except Exception as e:
-				print("Erorr: %s" %(e,))
+				logger.error(e)
 			finally:
 				i += 1
-				print("parser finally")
+				logger.info("parser finally")
 	return wrapper
 
 @while_poll
 def parsing_dashboard():
-	print("Start short product parsing Luxel")
+	logger.info("Start short product parsing Luxel")
 	luxel.parser_short_prdouct()
 
 @while_poll
 def parsing_details():
-	print("Start details product parsing Luxel")
+	logger.info("Start details product parsing Luxel")
 	luxel.parser_details_prdouct()
 
 if __name__ == '__main__':
+	logger.remove()
+	logger.add(sys.stderr, level="INFO")
+
 	parser = argparse.ArgumentParser( add_help=False)
 	parser.add_argument("site", help="which version of the parser to run?")
 	parser.add_argument("type", help="1 = short product parsing, 2 = details product parsing")
 	
 	args = parser.parse_args()
-	print(args)
+	logger.info(args)
 	
 	if args.site == 'luxel':
 		luxel = Luxel()

@@ -4,6 +4,7 @@ from bin.base import BaseParser
 
 from utils import get_user_agent
 from luxel.utils import get_status
+from loguru import logger
 
 import requests
 import config
@@ -22,12 +23,12 @@ class ClientLuxel(BaseParser):
 
 	def parser_product(self, url):
 		r = self.get(url)
-		print(r)
-		print(url)
+		logger.debug(r)
+		logger.debug(url)
 		
 		s = BeautifulSoup(r.text,'html.parser')
 		if r.status_code==404:
-			print("eror status_code 404", s.find('h2').text,url)
+			logger.error(s.find('h2').text,url)
 			return Offer()
 		
 		offer = Offer(
@@ -109,7 +110,7 @@ class BrowserLuxel():
 				EC.presence_of_element_located((By.CSS_SELECTOR, "#cat_data table"))
 				)
 		except TimeoutException:
-			print("Error: not table in "+category.text)
+			logger.error(" not table in "+category.text)
 		else:
 			# parser table
 			self.drive.implicitly_wait(3)

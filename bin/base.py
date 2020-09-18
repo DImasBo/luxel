@@ -1,5 +1,6 @@
 import requests
 import config
+from loguru import logger
 
 from utils import get_user_agent
 
@@ -19,14 +20,14 @@ class BaseParser:
 
 	def get(self,url):
 		r = requests.get(url, headers=self.headers)
-		print(r, self.headers, url)
+		logger.info(str(r) +" " +str(self.headers)+" " +url)
 		if r.status_code == 200:
 			return r
 		elif r.status_code==403:
 			self.set_user_agent()
 			return self.get(url)
-		print("ERRORR REQUESTS!!!!")
-		print(r, url,self.headers)
+		logger.error("ERRORR REQUESTS!!!!")
+		logger.error(r, url,self.headers)
 		return r
 
 	def parser_categories_link(self, url, limit=100):
