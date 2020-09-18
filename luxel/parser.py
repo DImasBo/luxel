@@ -71,7 +71,10 @@ class BrowserLuxel():
 		if kwargs.get('headless',config.HEADLESS_WINDOWS):
 			fireFoxOptions.set_headless()
 		
-		self.drive = webdriver.Firefox(firefox_profile=profile,firefox_options=fireFoxOptions)
+		self.drive = webdriver.Firefox(
+			executable_path=config.DECKODRIVER_PATH,
+			service_log_path=config.DECKODRIVER_LOG_PATH,
+			firefox_profile=profile,firefox_options=fireFoxOptions)
 
 	def login(self,email,password):
 		self.drive.get(config.LUXEL_LOGIN_LINK)
