@@ -8,7 +8,6 @@ import config
 import os	
 import csv
 import argparse
-import sys
 
 def while_poll(func):
 	""" 
@@ -40,7 +39,7 @@ def parsing_details():
 
 if __name__ == '__main__':
 	logger.remove()
-	logger.add(sys.stderr, level=config.LEVEL_LOG)
+	logger.add(config.LOG_FILE, level=config.LOG_LEVEL)
 
 	parser = argparse.ArgumentParser( add_help=False)
 	parser.add_argument("site", help="which version of the parser to run?")
